@@ -37,50 +37,51 @@ document.addEventListener("DOMContentLoaded", () => {
         // lets get the customer review content input
         const customerReviewText = customerRemarks.value.trim()
 
-        if(customerReviewText !== ""){
+        if (customerReviewText !== "") {
 
-        // Lets grab the section where the reviews are stored
-        // <ul id="review-list">
+            // Lets grab the section where the reviews are stored
+            // <ul id="review-list">
             const listReviewStorage = document.getElementById("review-list")
-        // Now we need to create a li, insert customer review and append to listReviewStorage
+            // Now we need to create a li, insert customer review and append to listReviewStorage
             const newCustomerReviewli = document.createElement("li")
             newCustomerReviewli.textContent = customerReviewText
             listReviewStorage.appendChild(newCustomerReviewli)
             customerReviewForm.reset()
 
             // Here we need to have our reviews sent to the server db.json
-            const ourReviewData = { ...getReviewsFromThePage, customerReviewText}            
+            const ourReviewData = { ...getReviewsFromThePage, customerReviewText }
 
             //we now need to do an PATCH on the server
             fetch(`${baseURL}/beers`)
-            .then(response => response.json)
-            .then(data => {
-                if(Array.isArray(data)){
-                data.forEach(beer =>{
-                    fetch(`${baseURL}/beers/${beer.id}`,{
-                        method: "PATCH",
-                        "Content-Type": "application/json",
-                        body: JSON.stringify(ourReviewData)
-                    })
-                    .then(response => response.json())
-                    .then(responseBeerData =>{
-                        console.log(`This is the server response for ${beer.id}:  ${responseBeerData}`)
-                    })
-                })}
-            })
+                .then(response => response.json)
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        data.forEach(beer => {
+                            fetch(`${baseURL}/beers/${beer.id}`, {
+                                method: "PATCH",
+                                "Content-Type": "application/json",
+                                body: JSON.stringify(ourReviewData)
+                            })
+                                .then(response => response.json())
+                                .then(responseBeerData => {
+                                    console.log(`This is the server response for ${beer.id}:  ${responseBeerData}`)
+                                })
+                        })
+                    }
+                })
 
-        // Lets delete the customer review when we click it
-        newCustomerReviewli.addEventListener("click", () => {
-            console.log(newCustomerReviewli.remove())
-        })
+            // Lets delete the customer review when we click it
+            newCustomerReviewli.addEventListener("click", () => {
+                console.log(newCustomerReviewli.remove())
+            })
         }
     })
 
     // Lets create the getReviewsFromThePage function here 
-    function getReviewsFromThePage(){
+    function getReviewsFromThePage() {
         const reviews = []
         const getAllReviewItems = document.querySelectorAll("#review-list li")
-        getAllReviewItems.forEach(reviewEachItem =>{
+        getAllReviewItems.forEach(reviewEachItem => {
             reviews.push(reviewEachItem.textContent)
         })
         return reviews
@@ -93,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault()
         let productOneDescriptionUpdate = descFormTextAreaElement.value.trim()
 
-        if(productOneDescriptionUpdate !== ""){
+        if (productOneDescriptionUpdate !== "") {
             // here we need to display the new description
             beerDescElement.textContent = productOneDescriptionUpdate
             grabFormDesc.reset()
@@ -102,28 +103,29 @@ document.addEventListener("DOMContentLoaded", () => {
             const descriptionInfo = {
                 description: productOneDescriptionUpdate
             }
-            
+
             // lets fetch the list of beers first using the GET so that we can update
             fetch(`${baseURL}/beers`)
-            .then(response => response.json())
-            .then(beers =>{
-                if(Array.isArray(beers)){
-                    beers.forEach(beer =>{
-                        // on each beer lets do a PATCH 
-                        fetch(`${baseURL}/beers/${beer.id}`,{
-                            method: "PATCH",
-                            "Content-Type": "application/json",
-                            body: JSON.stringify(descriptionInfo)
+                .then(response => response.json())
+                .then(beers => {
+                    if (Array.isArray(beers)) {
+                        beers.forEach(beer => {
+                            // on each beer lets do a PATCH 
+                            fetch(`${baseURL}/beers/${beer.id}`, {
+                                method: "PATCH",
+                                "Content-Type": "application/json",
+                                body: JSON.stringify(descriptionInfo)
+                            })
+                                .then(response => response.json())
+                                .then(post => console.log(`Description ${beer.description} has be updated to ${post}`))
                         })
-                        .then(response => response.json())
-                        .then(post => console.log(`Description ${beer.description} has be updated to ${post}`))
-                    })
-                }
-            })
+                    }
+                })
         }
     })
 
-    
+
+
     //Lets make the above be fetched from our db.json
     fetch(`${baseURL}/beers`)
         .then(resp => {
@@ -146,6 +148,22 @@ document.addEventListener("DOMContentLoaded", () => {
             // beerImageElement.setAttribute("src", firstBeer.image_url)
             // beerDescElement.textContent = firstBeer.description
 
+            //let me try have first beer at the baseURL
+            fetch(`${baseURL}/beers/1`)
+                .then(response => response.json())
+                .then(kanyaji => {
+                    const firstBeer = data[0]
+                    beerNameElement.textContent = firstBeer.name
+
+                    // // // // Note here we need to set the Attribute not get the attribute
+                    beerImageElement.setAttribute("src", firstBeer.image_url)
+                    beerDescElement.textContent = firstBeer.description
+                    kanyaji.reviews.forEach(review => {
+                        const li = cocument.createElement('li')
+                        li.textContent = review
+                        listReviewStorage.appendChild(li)
+                    })
+                })
 
 
             // we need to creat the nav bar beer list
@@ -172,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 const listReviewStorage = document.getElementById("review-list")
 
                                 // lets loop through the reveiws 
-                                beerData.reviews.forEach(review => {                                    
+                                beerData.reviews.forEach(review => {
                                     const newCustomerReviewli = document.createElement("li")
                                     newCustomerReviewli.textContent = review
                                     listReviewStorage.appendChild(newCustomerReviewli)
